@@ -1,4 +1,4 @@
-import type { StatementFormData, StatementPayload } from "@/types/statement";
+import type { Statement, StatementFormData, StatementPayload } from "@/types/statement"
 
 interface ApiResponse<T> {
     data?: T;
@@ -20,7 +20,7 @@ export const statementApi = {
                 amount: Number.parseFloat(formData.amount),
             };
 
-            const response = await fetch("/statement/create_statement", {
+            const response = await fetch("/statements/create_statement", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -37,6 +37,23 @@ export const statementApi = {
             if (error instanceof StatementApiError) {
                 throw error;
             }
+            throw new StatementApiError(
+                error instanceof Error ? error.message : "Неизвестная ошибка сети"
+            );
+        }
+    },
+
+        async getStatements(): Promise<ApiResponse<Statement[]>> {
+        try {
+            const response = await fetch("/statements/get_statements");
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new StatementApiError(result.error || "Не удалось получить список заявок");
+            }
+
+            return { data: result };
+        } catch (error) {
             throw new StatementApiError(
                 error instanceof Error ? error.message : "Неизвестная ошибка сети"
             );

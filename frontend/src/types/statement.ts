@@ -19,3 +19,16 @@ export interface StatementPayload {
 }
 
 export type Currency = "USD" | "EUR" | "GBP" | "RUB" | "JPY" | "CNY" | "CHF" | "CAD" | "AUD";
+
+
+export interface Statement {
+  id: number;
+  senderFullname: string;
+  senderPassport: string;
+  receiverFullname: string;
+  receiverAccountNumber: string;
+  receiverSwift: string;
+  amount: number;
+  currency: string;
+  status: "pending" | "completed" | "rejected";
+}
