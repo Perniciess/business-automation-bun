@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+
+datasource db {
+  provider = "sqlite"
+}
+
+
+enum Status {
+	PENDING
+	COMPLETED
+	CANCELLED
+	FAILED
+}
+
+
+enum Currency {
+	EUR
+	USD
+	CNY
+	GBP
+	JPY
+	CHF
+	CAD
+	AUD
+	RUB
+}
+
+
+model Sender {
+    id                    Int         @id @default(autoincrement())
+   	senderFullname        String
+	senderPassport        String      @unique
+	statements            Statement[]
+	@@map("senders")
+}
+
+
+model Receiver {
+    id                    Int         @id @default(autoincrement())
+    receiverFullname      String
+	receiverAccountNumber String      @unique
+	receiverSwift         String
+	statements            Statement[]
+	@@map("receivers")
+}
+
+
+model Attachment {
+	id                    Int       @id @default(autoincrement())
+	statementId           Int
+	statement             Statement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+	filePath              String
+	fileName              String
+	createdAt             DateTime  @default(now())
+	@@index([statementId])
+	@@map("attachments")
+}
+
+
+model Statement {
+	id                    Int          @id @default(autoincrement())
+	senderId              Int
+	sender                Sender       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+	receiverId            Int
+	receiver              Receiver     @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+	amount                Decimal
+	currency              Currency     @default(USD)
+	status                Status       @default(PENDING)
+	attachments           Attachment[]
+	createdAt             DateTime     @default(now())
+	updatedAt             DateTime     @updatedAt
+	@@index([senderId])
+	@@index([receiverId])
+	@@index([status])
+	@@index([createdAt])
+	@@index([status, createdAt])
+	@@map("statements")
+}
