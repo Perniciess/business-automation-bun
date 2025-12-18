@@ -1,11 +1,7 @@
-import DashboardStatement from "@/components/DashboardForm/DashboardStatement"
-function Dashboard() {
-  return (
-        <div className="min-h-screen bg-background">
-            <DashboardStatement />
-        </div>
-  );
-}
+import StatementsList from "@/components/Statements/StatementsList"
 
+function Dashboard() {
+  return <StatementsList />
+}
 
 export default Dashboard

@@ -137,14 +137,22 @@ export class StatementService {
                     })
                     senderId = senderRecord.id
                 }
-                else if (data.sender.senderFullname) {
-                    // Обновляем только имя существующего отправителя
-                    await prisma.sender.update({
-                        where: { id: existingStatement.senderId },
-                        data: {
-                            senderFullname: data.sender.senderFullname,
-                        },
-                    })
+                else {
+                    // Обновляем существующего отправителя со всеми переданными полями
+                    const updateData: any = {}
+                    if (data.sender.senderFullname) {
+                        updateData.senderFullname = data.sender.senderFullname
+                    }
+                    if (data.sender.senderPassport) {
+                        updateData.senderPassport = data.sender.senderPassport
+                    }
+                    
+                    if (Object.keys(updateData).length > 0) {
+                        await prisma.sender.update({
+                            where: { id: existingStatement.senderId },
+                            data: updateData,
+                        })
+                    }
                 }
             }
 
@@ -169,14 +177,24 @@ export class StatementService {
                     receiverId = receiverRecord.id
                 }
                 else {
-                    // Обновляем существующего получателя
-                    await prisma.receiver.update({
-                        where: { id: existingStatement.receiverId },
-                        data: {
-                            ...(data.receiver.receiverFullname && { receiverFullname: data.receiver.receiverFullname }),
-                            ...(data.receiver.receiverSwift && { receiverSwift: data.receiver.receiverSwift }),
-                        },
-                    })
+                    // Обновляем существующего получателя со всеми переданными полями
+                    const updateData: any = {}
+                    if (data.receiver.receiverFullname) {
+                        updateData.receiverFullname = data.receiver.receiverFullname
+                    }
+                    if (data.receiver.receiverSwift) {
+                        updateData.receiverSwift = data.receiver.receiverSwift
+                    }
+                    if (data.receiver.receiverAccountNumber) {
+                        updateData.receiverAccountNumber = data.receiver.receiverAccountNumber
+                    }
+                    
+                    if (Object.keys(updateData).length > 0) {
+                        await prisma.receiver.update({
+                            where: { id: existingStatement.receiverId },
+                            data: updateData,
+                        })
+                    }
                 }
             }
 

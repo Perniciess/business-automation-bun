@@ -118,3 +118,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Status badge styles */
+.status-badge.status-pending {
+  @apply bg-yellow-500/10 text-yellow-500 border-yellow-500/30;
+}
+
+.status-badge.status-approved {
+  @apply bg-green-500/10 text-green-500 border-green-500/30;
+}
+
+.status-badge.status-rejected {
+  @apply bg-red-500/10 text-red-500 border-red-500/30;
+}
+
+.status-badge.status-completed {
+  @apply bg-blue-500/10 text-blue-500 border-blue-500/30;
+}

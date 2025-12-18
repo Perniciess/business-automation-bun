@@ -15,9 +15,12 @@
         "@antfu/eslint-config": "^6.4.1",
         "@prisma/adapter-libsql": "^7.1.0",
         "@prisma/client": "^7.1.0",
+        "@types/pdfkit": "^0.17.4",
         "eslint": "^9.39.1",
         "hono": "^4.10.7",
-        "react-router-dom": "^7.10.1"
+        "pdfkit": "^0.17.2",
+        "react-router-dom": "^7.10.1",
+        "recharts": "^3.5.1"
     },
     "devDependencies": {
         "@types/bun": "latest",

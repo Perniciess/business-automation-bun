@@ -1,6 +1,7 @@
 import type { CreateStatementDTO, UpdateStatementDTO } from '../../../shared/src/types/statements.types'
 import { Hono } from 'hono'
 import { statementService } from './statement.service'
+import { PDFService } from '../pdf/pdf.service'
 
 export const statementRoutes = new Hono()
 
@@ -235,6 +236,122 @@ statementRoutes.delete('/delete_statement/:id', async (c) => {
         return c.json({
             success: false,
             error: error instanceof Error ? error.message : 'Failed to delete statement',
+        }, 500)
+    }
+})
+
+/**
+ * GET /statements/:id/print - Получить PDF заявления
+ */
+statementRoutes.get('/:id/print', async (c) => {
+    try {
+        const id = Number.parseInt(c.req.param('id'))
+
+        if (isNaN(id)) {
+            return c.json({ error: 'Invalid ID' }, 400)
+        }
+
+        const statement = await statementService.getStatementById(id)
+
+        if (!statement) {
+            return c.json({ error: 'Statement not found' }, 404)
+        }
+
+        const doc = PDFService.generateStatement(statement)
+        const pdfBuffer = await PDFService.pdfToBuffer(doc)
+
+        return new Response(pdfBuffer, {
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="statement_${id}.pdf"`,
+            },
+        })
+    }
+    catch (error) {
+        console.error('Error generating PDF:', error)
+        return c.json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to generate PDF',
+        }, 500)
+    }
+})
+
+/**
+ * GET /statements/:id/receipt - Получить PDF квитанции
+ */
+statementRoutes.get('/:id/receipt', async (c) => {
+    try {
+        const id = Number.parseInt(c.req.param('id'))
+
+        if (isNaN(id)) {
+            return c.json({ error: 'Invalid ID' }, 400)
+        }
+
+        const statement = await statementService.getStatementById(id)
+
+        if (!statement) {
+            return c.json({ error: 'Statement not found' }, 404)
+        }
+
+        // Проверка статуса: квитанцию можно распечатать только если перевод выполнен
+        if (statement.status !== 'COMPLETED') {
+            return c.json({
+                success: false,
+                error: 'Квитанцию можно распечатать только после завершения перевода',
+            }, 403)
+        }
+
+        const doc = PDFService.generateReceipt(statement)
+        const pdfBuffer = await PDFService.pdfToBuffer(doc)
+
+        return new Response(pdfBuffer, {
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="receipt_${id}.pdf"`,
+            },
+        })
+    }
+    catch (error) {
+        console.error('Error generating receipt PDF:', error)
+        return c.json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to generate receipt PDF',
+        }, 500)
+    }
+})
+
+/**
+ * GET /statements/:id/report - Получить PDF акта выполненных услуг
+ */
+statementRoutes.get('/:id/report', async (c) => {
+    try {
+        const id = Number.parseInt(c.req.param('id'))
+
+        if (isNaN(id)) {
+            return c.json({ error: 'Invalid ID' }, 400)
+        }
+
+        const statement = await statementService.getStatementById(id)
+
+        if (!statement) {
+            return c.json({ error: 'Statement not found' }, 404)
+        }
+
+        const doc = PDFService.generateDetailedReport(statement)
+        const pdfBuffer = await PDFService.pdfToBuffer(doc)
+
+        return new Response(pdfBuffer, {
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="report_${id}.pdf"`,
+            },
+        })
+    }
+    catch (error) {
+        console.error('Error generating report PDF:', error)
+        return c.json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to generate report PDF',
         }, 500)
     }
 })
